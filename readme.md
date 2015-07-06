@@ -6,7 +6,7 @@ File size: **989 bytes**.<br/>
 Supported platforms: **server and browser (does nothing on the server)**.<br/>
 Supported language versions: **ES5 and above**.
 
-Also supports array syntax.
+Falls-back to looking on `window` for the requested 'module' so that libraries that register themselves on window 'just work'.
 
 If you use this library in your software please tweet me @benastontweet.
 

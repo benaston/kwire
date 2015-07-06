@@ -1,6 +1,19 @@
 'use strict';
 
 var kwire = self.kwire;
+var camelify = kwire.camelify;
+
+describe('camelify', function() {
+
+	describe('when supplied with dash-case', function() {
+
+		it('should camelify it', function() {
+			// arrange & act & assert
+			expect(camelify('foo-bar')).toBe('fooBar');
+		});
+
+	});
+});
 
 describe('kwire', function() {
 
@@ -79,6 +92,39 @@ describe('kwire', function() {
 
 	describe('module.exports', function() {
 
+		it('should not throw an exception when supplied with null, to make temporary assignment to null valid for convenience', function() {
+			// arrange 
+			var rootObject, windowShadow, result;
+
+			rootObject = {};
+			windowShadow = {
+				foo: 'foobar'
+			};
+			kwire(rootObject, windowShadow);
+
+			// act
+			result = windowShadow.module.exports = null;
+
+			// assert
+			expect(true).toBe(true); // will be missed if an exception is thrown
+		});
+
+		it('should throw an error when supplied with undefined', function() {
+			// arrange 
+			var rootObject, windowShadow;
+
+			rootObject = {};
+			windowShadow = {
+				foo: 'foobar'
+			};
+			kwire(rootObject, windowShadow);
+
+			// act & assert
+			expect(function() {
+				windowShadow.module.exports = undefined;
+			}).toThrow('module not defined.');
+		});
+
 		it('should register the module on the root object', function() {
 			// arrange 
 			var rootObject, windowShadow, path, module;
@@ -102,6 +148,23 @@ describe('kwire', function() {
 	});
 
 	describe('module.require', function() {
+
+		it('should fallback to looking on the global object if the property cannot be found in the namespace, so that libraries can be used conveniently', function() {
+			// arrange 
+			var rootObject, windowShadow, path, module, injectedItem;
+
+			rootObject = {};
+			windowShadow = {
+				foo: 'foobar'
+			};
+			path = 'foo/bar';
+			kwire(rootObject, windowShadow);
+
+			// act
+			var result = windowShadow.require('foo');
+
+			expect(result).toBe('foobar');
+		});
 
 		it('should invoke the callback synchronously supplying the requested module', function() {
 			// arrange 

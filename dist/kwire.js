@@ -32,8 +32,11 @@
 
 		globalShadow.module = {
 			set exports(value) {
-				if (value == null) { // null or undefined.
-					throw 'value must be defined.';
+				if (value === undefined) {
+					throw 'module not defined.';
+				}
+				if (value === null) { // null or undefined.
+					return;
 				}
 				if (!value.hasOwnProperty('_path_')) {
 					throw '_path_ own-property must be present on modules registered with kwire.';
@@ -66,12 +69,20 @@
 
 				return cb.apply(null, value.map(function(v) {
 					return appRoot[v];
-				}))
+				}));
 			}
 
-			return appRoot[value];
+			var result = appRoot[value];
+
+			return result === undefined ? globalShadow[camelify(value)] : result;
 		};
 
+	}
+
+	function camelify(str) {
+		return str.replace(/(\-([^-]{1}))/g, function(match, $1, $2) {
+			return $2.toUpperCase();
+		});
 	}
 
 	function isServerSide() {
@@ -86,6 +97,7 @@
 		return (globalShadow.module && globalShadow.require);
 	}
 
+	kwire.camelify = camelify;
 	namespace.kwire = kwire;
 
 }(namespace));
